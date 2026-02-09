@@ -1,0 +1,58 @@
+name: CI
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        python-version: ["3.12"]
+        os: [ubuntu-latest, macos-latest]
+
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        lfs: true
+        fetch-depth: 0
+
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v5
+      with:
+        python-version: ${{ matrix.python-version }}
+        cache: 'pip'
+
+    - name: Install dependencies
+      run: |
+        pip install -e ".[all,dev]"
+        pip install coverage
+
+    - name: Ruff Lint
+      run: ruff check .
+
+    - name: Ruff Format
+      run: ruff format --check .
+
+    - name: Test & Coverage
+      run: |
+        coverage run -m unittest discover -s tests -v
+        coverage report --fail-under=85 --show-missing
+        coverage html
+        coverage xml -o coverage.xml
+
+    - name: Upload coverage reports
+      uses: codecov/codecov-action@v4
+      with:
+        token: ${{ secrets.CODECOV_TOKEN }}
+        file: ./coverage.xml
+      if: success()
+
+    - name: Upload coverage HTML
+      uses: actions/upload-artifact@v4
+      with:
+        name: coverage-report-${{ matrix.python-version }}-${{ matrix.os }}
+        path: coverage_html/
+      if: always()

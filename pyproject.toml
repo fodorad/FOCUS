@@ -1,0 +1,77 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "focus"
+version = "0.1.0"
+description = "Fast Observation and Character Understanding System"
+keywords = ["gradio", "multimodal", "demo", "engagement"]
+authors = [
+  { name = "fodorad", email = "fodorad201@gmail.com" },
+]
+readme = {"file" = "README.md", "content-type" = "text/markdown"}
+requires-python = ">=3.12"
+license = "MIT"
+classifiers = [
+  "Programming Language :: Python :: 3.12",
+  "License :: OSI Approved :: MIT License",
+  "Operating System :: OS Independent",
+]
+dependencies = [
+  "numpy",
+  "opencv-python",
+  "tqdm",
+  "matplotlib",
+  "torch",
+  "gradio",
+  "exordium"
+]
+
+[project.scripts]
+focus = "focus.app:main"
+
+[project.optional-dependencies]
+dev = [
+  "ruff",
+  "coverage"
+]
+
+[project.urls]
+Documentation = "https://github.com/fodorad/focus#readme"
+Issues = "https://github.com/fodorad/focus/issues"
+Source = "https://github.com/fodorad/focus"
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "TCH", "ARG", "PIE"] # , "D"]
+ignore = [
+  "D203",  # Blank line before class (conflicts with D211)
+  "D213"   # Multi-line summary second line (conflicts with D212)
+]
+
+dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
+
+[tool.ruff.lint.per-file-ignores]
+"__init__.py" = ["D104"]  # Skip __init__.py docstrings
+"tests/test_*.py" = ["D", "S", "ARG"]    # Skip tests
+"focus/engine.py" = ["ARG"]              # Placeholder functions have intentionally unused args
+
+[tool.coverage.run]
+source = ["focus"]
+omit = ["*/tests/*", "*/__init__.py"]
+
+[tool.coverage.report]
+fail_under = 85
+show_missing = true
+skip_covered = false
+
+[tool.coverage.html]
+directory = "coverage_html"
